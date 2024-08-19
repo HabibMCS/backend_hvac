@@ -8,6 +8,20 @@ import pytz
 class HVACSystem:
     def __init__(self) -> None:
         pass
+    def getparams(self,uri,token):
+        headers = {'x-access-token': token}
+        parameters = {}
+        try:
+            response = requests.get(uri, headers=headers)
+            response.raise_for_status()
+            print(response.encoding)  # Check the detected encoding
+            data = response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Request error: {e}")
+            return {}, {}
+        for key,values in data["data"].items():
+            parameters[key]=values.get("title")
+        return parameters
 
     def get_unitandsystem(self, token, uri):
         headers = {'x-access-token': token}
@@ -85,7 +99,7 @@ class HVACSystem:
     def write_to_csv(self, mapped_entries, parameter_mapping, output_file):
         fieldnames = ["Time Stamp", "Unit Name", "Unit Type"] + list(parameter_mapping.values())
 
-        with open(output_file, 'a', newline='') as csvfile:
+        with open(output_file, 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             if csvfile.tell() == 0:

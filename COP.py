@@ -1,6 +1,3 @@
-class COP:
-    pass
-
 import CoolProp.CoolProp as CP
 import pandas as pd
 import numpy as np 
@@ -16,7 +13,7 @@ def COP(outfile,sample_time):
 
     pd.set_option('display.max_columns', 120)
 
-    df = pd.read_csv(outfile)
+    df = pd.read_csv(outfile,encoding='utf-8')
     
     df.head(2)
 
@@ -145,9 +142,8 @@ def COP(outfile,sample_time):
     fcu_df.drop(to_drop_cols_fcu, inplace=True, axis=1)
     fcu_agg.pop('System Identifier')
 
-    fcu_gp = fcu_df.groupby(by=['Time Stamp', 'System Identifier']).agg(fcu_agg)
+    fcu_gp = fcu_df.groupby(by=['Time Stamp', 'System Identifier']).agg(fcu_agg).reset_index()
 
-    fcu_gp = fcu_gp.reset_index()
 
 
     cu_df = cu_df.set_index('Time Stamp')
@@ -157,30 +153,72 @@ def COP(outfile,sample_time):
 
     cu_df.drop(to_drop_cols_cu, inplace=True, axis=1)
     cu_agg.pop('System Identifier')
-    cu_gp = cu_df.groupby(by=['Time Stamp', 'System Identifier']).agg(cu_agg)
+    cu_gp = cu_df.groupby(by=['Time Stamp', 'System Identifier']).agg(cu_agg).reset_index()
+
+    # Ensure DataFrames have the same index for comparison
 
     cu_gp = cu_gp.reset_index()
+    fcu_gp = fcu_gp.sort_values(by=['Time Stamp', 'System Identifier']).reset_index(drop=True)
+    cu_gp = cu_gp.sort_values(by=['Time Stamp', 'System Identifier']).reset_index(drop=True)
+
+    # Print index alignment to debug
+    print("fcu_gp index:", fcu_gp.index)
+    print("cu_gp index:", cu_gp.index)
 
     # Make sure that the data coincides so each row corresponding to the row at the same index in the other dataframe
     
-    print((fcu_gp['Time Stamp'] == cu_gp['Time Stamp']).unique())
-    print((fcu_gp['System Identifier'] == cu_gp['System Identifier']).unique())
+    print((fcu_gp['Time Stamp'] == cu_gp['Time Stamp']).all())
+    print((fcu_gp['System Identifier'] == cu_gp['System Identifier']).all())
 
 
 
     # Define the refrigerant (Working Fluid)
     refrigerant = 'R410A'
 
+    # def calc_enthalpy(temperature_k, pressure_pa, refrigerant):
+    #     # Ensure temperature and pressure are pandas Series
+    #     assert isinstance(temperature_k, pd.Series), "temperature_k must be a pandas Series"
+    #     assert isinstance(pressure_pa, pd.Series), "pressure_pa must be a pandas Series"
+    #     temperature_k, pressure_pa = temperature_k.align(pressure_pa, join='inner')
+    #     assert len(temperature_k) == len(pressure_pa), "temperature_k and pressure_pa must have the same length"
+
+    #     # Calculate enthalpy using CoolProp for each row
+    #     enthalpy = temperature_k.apply(lambda T: CP.PropsSI('H', 'T', T, 'P', pressure_pa.iloc[temperature_k.tolist().index(T)], refrigerant))
+        
+    #     return enthalpy
+
     def calc_enthalpy(temperature_k, pressure_pa, refrigerant):
         # Ensure temperature and pressure are pandas Series
         assert isinstance(temperature_k, pd.Series), "temperature_k must be a pandas Series"
         assert isinstance(pressure_pa, pd.Series), "pressure_pa must be a pandas Series"
+        
+        # Align temperature and pressure Series
         temperature_k, pressure_pa = temperature_k.align(pressure_pa, join='inner')
         assert len(temperature_k) == len(pressure_pa), "temperature_k and pressure_pa must have the same length"
 
-        # Calculate enthalpy using CoolProp for each row
-        enthalpy = temperature_k.apply(lambda T: CP.PropsSI('H', 'T', T, 'P', pressure_pa.iloc[temperature_k.tolist().index(T)], refrigerant))
+        # Remove NaN values
+        valid_data = temperature_k.notna() & pressure_pa.notna()
+        temperature_k = temperature_k[valid_data]
+        pressure_pa = pressure_pa[valid_data]
         
+        # Round temperature values for comparison
+        temperature_k_rounded = temperature_k.round()
+
+        # Create a mapping from rounded temperature to pressure values
+        temp_to_pressure = pressure_pa.groupby(temperature_k_rounded).first()
+
+        def compute_enthalpy(T):
+            rounded_T = round(T)
+            if rounded_T in temp_to_pressure.index:
+                pressure = temp_to_pressure[rounded_T]
+                return CP.PropsSI('H', 'T', T, 'P', pressure, refrigerant)
+            else:
+                print(f"Temperature {T} not found in pressure series")
+                return float('nan')
+
+        # Apply the function to the rounded temperatures
+        enthalpy = temperature_k.apply(compute_enthalpy)
+
         return enthalpy
 
     def calc_isen_enthalpy(P_in_pa, T_in_k, P_out_pa, refrigerant):
@@ -214,11 +252,11 @@ def COP(outfile,sample_time):
     res = pd.DataFrame()
 
     res['Time Stamp'] = cu_gp['Time Stamp']
-    res['T_comp1_dis (K)'] = cu_gp["INV1 comp. body temp (C)"]+273 +5 # +273 to Kelvin , +5 assumption that the body is 5°c lower th
-    res['T_comp2_dis (K)'] = cu_gp["INV2 comp. body temp (C)"]+273 +5
-    res['P_cond (Pa)'] = cu_gp["Condensing Pressure (MPa)"] * 1e6
-    res['P_evap (Pa)'] = cu_gp["Evaporating Pressure (MPa)"] * 1e6
-    res['T_comp_suc (K)'] = cu_gp["Comp. suction pipe temp. (C)"]+273
+    res['T_comp1_dis (K)'] = cu_gp["INV1 comp. body temp"]+273 +5 # +273 to Kelvin , +5 assumption that the body is 5°c lower th
+    res['T_comp2_dis (K)'] = cu_gp["INV2 comp. body temp"]+273 +5
+    res['P_cond (Pa)'] = cu_gp["Condensing Pressure"] * 1e6
+    res['P_evap (Pa)'] = cu_gp["Evaporating Pressure"] * 1e6
+    res['T_comp_suc (K)'] = cu_gp["Comp. suction pipe temp."]+273
 
     # Adding target efficiency columns
     res['target_eta'] = [0.75]*res.shape[0]
@@ -260,8 +298,8 @@ def COP(outfile,sample_time):
     P_F = 0.8
 
     # Calculating electric power for each compressor
-    res['comp1_mech_power'] = cu_gp["Comp.1 current (A)"] * voltage * P_F * mt.sqrt(3) * eta_e       # watt
-    res['comp2_mech_power'] = cu_gp["Comp.2 current (A)"] * voltage * P_F * mt.sqrt(3) * eta_e       # watt
+    res['comp1_mech_power'] = cu_gp["Comp.1 current"] * voltage * P_F * mt.sqrt(3) * eta_e       # watt
+    res['comp2_mech_power'] = cu_gp["Comp.2 current"] * voltage * P_F * mt.sqrt(3) * eta_e       # watt
 
 
 
@@ -289,15 +327,15 @@ def COP(outfile,sample_time):
                                                                 comp2_mech_power = res['comp2_mech_power'],
                                                                 h_comp2_dis = res['h_comp2_dis (j/kg)'])
 
-    res['T_evap_ex (K)'] = fcu_gp['Gas Pipe T¬∞ (C)'] + 273
-    res['T_subcooling (K)'] = cu_gp['Subcooling heat exchanger liquid temp. (C)'] + 273
+    res['T_evap_ex (K)'] = fcu_gp['Gas Pipe T°'] + 273
+    res['T_subcooling (K)'] = cu_gp['Subcooling heat exchanger liquid temp.'] + 273
 
     res['h_evap_ex (j/kg)'] = calc_enthalpy(res['T_evap_ex (K)'],res['P_evap (Pa)'],refrigerant)
     res['h_evap_in (j/kg)'] = calc_enthalpy(res['T_subcooling (K)'],res['P_cond (Pa)'],refrigerant)
 
     res['cooling_load (KW)'] = res['m_total'] * (res['h_evap_ex (j/kg)'] - res['h_evap_in (j/kg)']) / 1000
 
-    res['Total_electric_power (KW)'] = cu_gp['*Electric Power (Estimated) (kW)'] + res['comp1_mech_power'] / (1000*0.98) + res['comp2_mech_power'] / (1000*0.98)
+    res['Total_electric_power (KW)'] = cu_gp['*Electric Power (Estimated)'] + res['comp1_mech_power'] / (1000*0.98) + res['comp2_mech_power'] / (1000*0.98)
 
     res['COP'] = res['cooling_load (KW)'] / (res['Total_electric_power (KW)'])
     res['COP'] = res['COP'].fillna(0)
@@ -326,7 +364,7 @@ def COP(outfile,sample_time):
     final_result
 
     # Drop columns that are repeated and not necessary
-    cols_drop = ['AirNet Addr.','Centralised Address','CA Device Line Number','*Line quality','Site temperature (C)']
+    cols_drop = ['AirNet Addr.','Centralised Address','CA Device Line Number','*Line quality','Site temperature']
     df.drop(df[cols_drop], axis=1, inplace=True)
 
     final_result.to_csv('Final_results.csv', index=False)
@@ -379,13 +417,6 @@ def COP(outfile,sample_time):
     df['(j) Percent Energy Balance (%)'] = 100 *((df['(a) Total electric power (KW)'] 
                                                 + df['(g) Cooling Load (Heat Gain) (KW)']
                                                 - df['(h) Condenser Heat Reject (KW)']) / (df['(h) Condenser Heat Reject (KW)']))
-
-
-
-
-
-
-
 
 
     df.tail(n=10)

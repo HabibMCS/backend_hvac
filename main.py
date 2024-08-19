@@ -5,7 +5,8 @@ import pandas as pd
 import sys
 import COP
 
-def csv_download(outfile, hvac, parameter_mapping, date, start, end, token, system_uri, unit_uri):
+
+def csv_download(outfile, hvac, date, start, end, token, system_uri, unit_uri,service_uri):
     output_csv_file = outfile
     
     # Cache system and unit information
@@ -17,6 +18,7 @@ def csv_download(outfile, hvac, parameter_mapping, date, start, end, token, syst
     
     system_ids = list(system_json.keys())
     print(system_ids)
+    parameter_mapping = hvac.getparams(uri = service_uri,token=token)
     
     # Get timestamp range once
     start_timestamp_ms, end_timestamp_ms = hvac.get_time_range_timestamps(date, start_hour=start, end_hour=end)
@@ -51,19 +53,19 @@ def main():
     
     # # Download and process data
     # try:
-    #     csv_download(outfile=outfile, hvac=HVACSystem(), parameter_mapping=env.parameters_mapping, 
-    #              date= "27/07/2024", start=9, end=17, 
-    #              token=env.token, system_uri=env.system_uri, unit_uri=env.unit_uri)
+    #     csv_download(outfile=outfile, hvac=HVACSystem() ,date= "27/07/2024" , start=9, end=17, 
+    #              token=env.token, system_uri=env.system_uri, unit_uri=env.unit_uri,service_uri=env.service_uri)
     # except Exception as e:
     #     print(e)
 
-    # df = pd.read_csv(outfile)
+    # df = pd.read_csv(outfile, encoding='utf-8')
     # df = df.dropna(axis=1, how='all')
     
-    # df.to_csv(outfile, index=False)
+    # df.to_csv(outfile, index=False,encoding='utf-8')
 
-    print(f"Processed data and saved cleaned CSV to {outfile}.")
-
+    # print(f"Processed data and saved cleaned CSV to {outfile}.")
+    # with open("col.txt", "w+", encoding='utf-8') as file:
+    #     file.write(','.join(f"'{col}'" for col in df.columns) + '\n')
     total_data_count,data_count_more_10_percent,data_count_less_10_percent,percent_within_10_percent = COP.COP(outfile= outfile, sample_time = "5T")
     print(f'Total Data Count: {total_data_count}')
     print(f'Data Count > 10% error: {data_count_more_10_percent}')
