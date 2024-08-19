@@ -1,6 +1,6 @@
 import json
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 import pytz
 
@@ -110,14 +110,30 @@ class HVACSystem:
                 writer.writerow(complete_entry)
 
     @staticmethod
-    def get_time_range_timestamps(date_str, date_format="%d/%m/%Y", start_hour=9, end_hour=17, timezone="Asia/Singapore"):
+    def get_time_range_timestamps(date_str, date_format="%d/%m/%Y", start_hour=0, end_hour=23, timezone="Asia/Singapore"):
         tz = pytz.timezone(timezone)
+            # Handle single date
         date = datetime.strptime(date_str, date_format)
-
         start_time = tz.localize(datetime(date.year, date.month, date.day, start_hour, 0, 0))
         end_time = tz.localize(datetime(date.year, date.month, date.day, end_hour, 0, 0))
-
         start_timestamp_ms = int(start_time.timestamp() * 1000)
         end_timestamp_ms = int(end_time.timestamp() * 1000)
 
         return start_timestamp_ms, end_timestamp_ms
+    @staticmethod
+    def get_segments(start_date_str, end_date_str, date_format="%d/%m/%Y", segment_days=2,timezone = "Asia/Singapore"):
+        tz = pytz.timezone(timezone)
+        start_date = tz.localize(datetime.strptime(start_date_str, date_format))
+        end_date = tz.localize(datetime.strptime(end_date_str, date_format))
+        segments = []
+        current_date = start_date
+
+        while current_date < end_date:
+            segment_start = current_date
+            segment_end = current_date + timedelta(days=segment_days)
+            if segment_end > end_date:
+                segment_end = end_date
+            segments.append((segment_start, segment_end))
+            current_date = segment_end
+
+        return segments
