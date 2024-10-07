@@ -1,13 +1,10 @@
-### COP BACKEND 
-
-```markdown
-# HVAC Data Processing Pipeline
+# HVAC Data Processing Backend
 
 This project provides a pipeline for downloading, processing, and uploading HVAC system data. It leverages various scripts to handle data transformation, COP calculation, uncertainty summary generation, and uploads the results to Google Cloud Platform (GCP) in an organized file structure.
 
 ## Project Structure
 
-
+```markdown
 .
 ├── main.py                   # Script for downloading data for the past 2 weeks daily.
 ├── sandbox.py                # Main script with all processing logic:
