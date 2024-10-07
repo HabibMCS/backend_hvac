@@ -1,4 +1,4 @@
-Here’s a well-structured `README.md` file for your project, taking into account the file structure and the overall functionality of the scripts. This format includes clear headings, descriptions, and sections to guide users through the project:
+### COP BACKEND 
 
 ```markdown
 # HVAC Data Processing Pipeline
@@ -7,9 +7,9 @@ This project provides a pipeline for downloading, processing, and uploading HVAC
 
 ## Project Structure
 
-```
+
 .
-├── nain.py                   # Script for downloading data for the past 2 weeks daily.
+├── main.py                   # Script for downloading data for the past 2 weeks daily.
 ├── sandbox.py                # Main script with all processing logic:
 │   ├── Downloads data for the past 2 weeks
 │   ├── Transforms data using Ahmad's scripts
@@ -71,60 +71,3 @@ COPData/
   - `env` (for environment variables)
   - Any other dependencies used in Ahmad's scripts.
 
-## Setup
-
-1. **Clone the Repository**:
-   ```bash
-   git clone <repository-url>
-   cd <repository-directory>
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Google Cloud Authentication**:
-   Ensure your GCP credentials are set up correctly. Use a service account and the associated key file or set up your credentials using the GCP SDK.
-
-4. **Environment Variables**:
-   Create a `.env` file in the root directory with the following structure:
-   ```
-   TOKEN=<your_token>
-   SYSTEM_URI=<your_system_uri>
-   UNIT_URI=<your_unit_uri>
-   SERVICE_URI=<your_service_uri>
-   ```
-
-## Running the Pipeline
-
-To run the data downloading and processing script, execute the following command:
-
-```bash
-python nain.py
-```
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request if you have suggestions or improvements.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For questions or further information, please contact [Your Name](mailto:your-email@example.com).
-```
-
-### Key Changes Made:
-- **Clear Structure**: The README is organized into distinct sections with headings for easy navigation.
-- **Project Description**: A brief overview of what the project does.
-- **Features**: Highlighting key functionalities of the project.
-- **Requirements**: Listing necessary software and libraries.
-- **Setup Instructions**: Step-by-step guide to set up the project.
-- **Running Instructions**: Clear command to run the script.
-- **Contribution Guidelines**: Encouragement for contributions and how to do so.
-- **Contact Information**: A section for contact information for further questions.
-
-Feel free to customize any part of the README to better suit your project or personal style!
