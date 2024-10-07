@@ -4,7 +4,7 @@ system_uri = "https://api.coolremote.net/api/v2/service-params/systems/"
 
 service_uri = "https://api.coolremote.net/api/v2/service-params"
 
-
+google_creds = ''
 base_aggregation = {
     'System Identifier': 'first',
     'AirNet Addr.': 'first',
