@@ -149,7 +149,21 @@ def remove_unecessary_files():
         if os.path.exists(f'.\outputs\Results with outliers\\results.{i}.csv'):
               os.remove(f'.\outputs\Results with outliers\\results.{i}.csv')
     
-    
+def remover_outliers(sys_df):
+    for col in ['COP','cooling_load (KW)']:
+        Q1 = sys_df[col].quantile(0.25)
+        Q3 = sys_df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_fence = Q1 - 1.5 * IQR
+        upper_fence = Q3 + 1.5 * IQR
+
+        lower_outliers = sys_df[sys_df[col] < lower_fence][col].sys_dfs
+        upper_outliers = sys_df[sys_df[col] > upper_fence][col].sys_dfs
+
+        sys_df[col].replace(lower_outliers, lower_fence, inplace=True)
+        sys_df[col].replace(upper_outliers, upper_fence, inplace=True)
+    return sys_df
+
 def perform_calculations(sys_df,z):
     print(f'Performing Calculations for system {z} in Progress .....')
 
@@ -359,8 +373,9 @@ def perform_calculations(sys_df,z):
     # Saving the final dataframe in csv
     sys_df.to_csv(f'.\outputs\Temporary\\results.{z}.csv', index=False)
     sys_df.to_csv(f'.\outputs\Results with outliers\\results.{z}.csv', index=False)
-  
-                  
+    sys_df[:] = remover_outliers(sys_df)
+    sys_df.to_csv(f'.\outputs\Results without outliers\\results.{z}.csv', index=False)  
+
     print(f"Calculations of system {z} performed successfully")
     print("*"*120)
 
