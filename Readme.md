@@ -1,6 +1,6 @@
 # HVAC Data Processing Backend
 
-This project provides a pipeline for downloading, processing, and uploading HVAC system data. It leverages various scripts to handle data transformation, COP calculation, uncertainty summary generation, and uploads the results to Google Cloud Platform (GCP) in an organized file structure.
+This project provides a pipeline for downloading, processing, and uploading HVAC system data. It leverages various scripts to handle data transformation, COP calculation, uncertainty summary generation, and uploads the results to Google Cloud Storage in GCP in an organized file structure.
 
 ## Project Structure
 
