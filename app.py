@@ -6,7 +6,7 @@ import concurrent.futures  # Standard library
 import requests  # Third-party
 import pandas as pd  # Third-party
 from utility import HVACSystem
-from calculate_cop import perform_calculations
+# from calculateCOP import perform_calculations
 # from transform_data import process_csv_and_filter 
 # from calculateCOP import calculate_COP_from_df
 import env
@@ -15,6 +15,8 @@ import env
 app = Flask(__name__)
 CORS(app)
 hvac = HVACSystem()
+df_reduced = pd.read_csv('./data/reduced.csv')
+df_all_sys_res = pd.read_csv('./data/All systems results summary.csv')
 
 # Function to download system data (adapted from your code)
 def download_system_data(system_id, hvac, token, system_uri, service_uri, units_json, parameter_mapping, segments, output_dir):
@@ -164,6 +166,18 @@ def download_csv():
         return final_json_data
     except:
         return jsonify({"error": "No data to download"}), 500
+
+@app.route('/get_time', methods=['GET'])
+def get_time():
+    return jsonify(df_reduced.iloc[:, 0].tolist())
+
+@app.route('/get_cop', methods=['GET'])
+def get_cop():
+    return jsonify(df_reduced.iloc[:, 1].tolist())
+
+@app.route('/get_cooling', methods=['GET'])
+def get_cooling():
+    return jsonify(df_reduced.iloc[:, 2].tolist())
 
 
 if __name__ == '__main__':
