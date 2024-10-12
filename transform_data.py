@@ -1,4 +1,11 @@
+#!/usr/bin/env python
+# coding: utf-8
 
+# In[96]:
+
+
+
+### Importing Necessary libraries
 import CoolProp.CoolProp as CP
 
 import pandas as pd
@@ -31,85 +38,19 @@ def delete_files_in_directory(directory_path):
     except OSError:
         print("Error occurred while deleting files.")
 
-
-def get_valid_input(prompt, input_type):
-    while True:
-        try:
-            user_input = input(prompt)
-            if input_type in ['day', 'month']:
-                value = int(user_input)
-                if input_type == 'day' and 1 <= value <= 31:
-                    return f"{value:02}"  # Ensure two digits (e.g., '01', '10')
-                elif input_type == 'month' and 1 <= value <= 12:
-                    return f"{value:02}"  # Ensure two digits (e.g., '01', '12')
-                else:
-                    raise ValueError(f"{input_type.capitalize()} must be within the correct range.")
-            elif input_type == 'year':
-                value = int(user_input)
-                if value < 100:  # Convert to two-digit format if necessary
-                    return f"{value:02}"
-                elif value > 2000: # To handle four-digit format if necessary
-                    value = value - 2000
-                    return f"{value:02}"
-            elif input_type == 'hour':
-                value = int(user_input)
-                if 0 <= value <= 23:
-                    return f"{value:02}"
-                else:
-                    raise ValueError("Hour must be between 0 and 23.")
-            elif input_type == 'minute':
-                value = int(user_input)
-                if 0 <= value <= 59:
-                    return f"{value:02}"
-                else:
-                    raise ValueError("Minute must be between 0 and 59.")
-        except ValueError as e:
-            print(f"Invalid input: {e}. Please try again.")
-            
-            
-def get_timestamp():
-    day = get_valid_input("Enter the day (1-31): ", 'day')
-    month = get_valid_input("Enter the month (1-12 or month name): ", 'month')
-    year = get_valid_input("Enter the year (e.g., 2024): ", 'year')
-    hour = get_valid_input("Enter the hour (0-23): ", 'hour')
-    minute = get_valid_input("Enter the minute (0-59): ", 'minute')
-
-
-    return f'{day}/{month}/{year} {hour}:{minute}'
-
-
+### Modified the function in V0.03
+#***********************************************************************************************************************#
 def filter_dataframe(df):
-    return df[df['Time Stamp'].dt.hour.between(9, 17)]
-    # start_stamp = (pd.to_datetime(df['Time Stamp'], dayfirst=True, format="%d/%m/%y %H:%M")).min()
-    # end_stamp = (pd.to_datetime(df['Time Stamp'], dayfirst=True, format="%d/%m/%y %H:%M")).max()
-    # print(f'You have time range between {start_stamp} and {end_stamp}.')
-    # user_input = input('Do you want to filter the data for certain operational hours?: yes/no ')
-    # if user_input.lower() in ['yes', 'y']:
-    #     print("Enter start timestamp:")
-    #     start_timestamp = get_timestamp()
-    #     print("*"*120)
-    #     print("Enter end timestamp:")
-    #     end_timestamp = get_timestamp()
-    #     print("*"*120)
-
-    #     # Ensure start timestamp is before end timestamp
-    #     if start_timestamp >= end_timestamp:
-    #         print("Start timestamp must be before end timestamp. Please try again.")
-    #         print("*"*120)
-    #         return filter_dataframe(df)
-
-    #     # Filter the dataframe based on the provided timestamps
-    #     filtered_df = df[(df['Time Stamp'] >= start_timestamp) & (df['Time Stamp'] <= end_timestamp)]
-    #     return filtered_df
+    df['Time Stamp'] = pd.to_datetime(df['Time Stamp'], dayfirst=True, format="%d/%m/%y %H:%M")
+    df['hour'] = df['Time Stamp'].apply(lambda x: x.hour)
     
-    # elif user_input.lower() in ['no', 'n']:
-    #     print("*"*120)
-    #     return df
-    # else:
-    #     print('Not a Valid input, Please try again.')
-    #     print("*"*120)
-    #     return filter_dataframe(df)
+    # Filter the dataframe based on the working hours 9 am to 5 pm
+    filtered_df = df[(df['hour'] >= 9) & (df['hour'] <= 17)]
     
+    filtered_df = filtered_df.drop('hour',axis=1)
+    
+    return filtered_df    
+#***********************************************************************************************************************#   
 
 #We will identify each row belongs to which of the four systems
 
@@ -180,44 +121,42 @@ def combine_sys_unit(df):
 #- Multiple columns same name: Unit Type.(1-2)
 
 
+### Modified the function in V0.03
+#***********************************************************************************************************************#
 def cols_to_drop(k):
+    lst = []
+    for i in range(1,k+1):
+        for j in range(1,k+1):
+            lst.extend([f'System Identifier.{i}',f'Time Stamp.{i}',
+                        f'Mode.{i}.{j}', f'Defrost.{i}', f'HP.{i}', f'Unit Type.{i}',
+                        f'Unit Type.{i}.{j}',f'Fan Mode.{i}.{j}',f'Error Code.{i}']) 
+    return lst
+#***********************************************************************************************************************#
+
+### Added function in V0.03
+#***********************************************************************************************************************#
+def cols_to_drop_init(k):
     lst = []
     
     lst.extend(['AirNet Addr.', 'Backup ope.', 'CA Device Line Number', 'Comp.1 current.1', 'Comp.2 current.1', 'Defrost', 
                'Demand stepping down cntl','Demand state', 'Disch. pipe retry', 'EVJ (refrigerant injection)', 
                 'EVM (Main)', 'EVT (subcooling heat xchanger)', 'Error Code', 'HP', 'HVAC Unit type', 
                'Heat exchanger liquid pipe temp..1', 'I/U thermostat ON capacity', 'INV1 stand-by', 'INV1 oil separator below', 
-               'INV2 stand-by', 'INV2 oil separator below', 'Low pressure retry', 'Oil return', 'Operation output', 'Outdoor Type',
-               'Overheating stand-by', 'Restart stand-by', 'Startup control.1', 'Subcooling heat exchanger liquid temp..1', 
-               'System HP', 'System HP.1', 'Unit Type', 'Ventilation', 'Centralised Address','Cool/Heat parallel ope.',
-               'Cooling','Heating', 'Generic system number', 'Refrigerant System Number'])
+               'INV2 stand-by', 'INV2 oil separator below', 'Low pressure retry', 'Oil return', 'Operation output',
+                'Outdoor Type','Overheating stand-by', 'Restart stand-by', 'Startup control.1',
+                'Subcooling heat exchanger liquid temp..1', 'System HP', 'System HP.1', 'Ventilation', 
+                'Centralised Address','Cool/Heat parallel ope.','Cooling','Heating', 'Generic system number', 
+                'Refrigerant System Number',
+                f'*Failure' , f'*Line quality' , f'*Working hours', f'Air Thermistor BRC1 T°',f'AirNet Addr.', 
+                f'CA Device Line Number',f'Central Address.1',f'Filter status', f'Indoor therm ON status',f'Suction T°',
+                f'Central Address',f'Centralised Address', f'Indoor Type Code', f'Mode', f'Site temperature', f'System number',
+               'Unit Error stat',])
     
     for i in range(1,k+1):
-        for j in range(1,k+1):
-
-            if i<=6:
-                lst.append(f'Mode.{i}.{j}')
-                if i<=2:
-                    lst.append(f'Unit Type.{i}.{j}')
-                if i<=4:
-                    lst.append(f'Fan Mode.{i}.{j}')
-                    
-        lst.extend([f'*Failure.{i}' , f'*Line quality.{i}' , f'*Working hours.{i}', f'Air Thermistor BRC1 T°.{i}',
-                   f'AirNet Addr..{i}', f'CA Device Line Number.{i}', f'Central Address.1.{i}',
-                   f'Filter status.{i}', f'Indoor therm ON status.{i}',f'Suction T°.{i}', f'System Identifier.{i}',
-                    f'Time Stamp.{i}', f'Central Address.{i}',f'Centralised Address.{i}', f'Indoor Type Code.{i}', 
-                    f'Mode.{i}', f'Site temperature.{i}', f'System number.{i}'])
-        
-        lst.append(f'Unit Type.{i}')
-        
-        if i<=10:
-            lst.append(f'Error Code.{i}')
-        
-        if i<=6:
-            lst.extend([f'Defrost.{i}', f'HP.{i}'])
-            
+        lst.extend([f'Mode.{i}', f'Defrost.{i}', f'HP.{i}',f'Unit Type.{i}',f'Fan Mode.{i}',f'Error Code.{i}'])
+    
     return lst
-
+#***********************************************************************************************************************#
 
 def clean_combined_sys_df(df,k):
     print(f'Dataframe started with {df.shape[1]} columns.')
@@ -227,7 +166,9 @@ def clean_combined_sys_df(df,k):
     print(f'After removing Null columns we have {df.shape[1]} columns.')
     # Will create a list of columns to drop based on analysis
     lst_to_drop = cols_to_drop(k)
-    df = df.drop(lst_to_drop , axis=1)
+    #***********************************************************************************************************************#
+    df = df.drop(lst_to_drop , axis=1, errors='ignore')  # Modified V0.03
+    #***********************************************************************************************************************#
     
     print(f'Final Dataframe after dropping all unnecessary columns, we have {df.shape[1]} columns.')
     print('*'*100)
@@ -248,15 +189,21 @@ def get_final_dfs(lst_of_systems_dfs):
 def data_transform_and_split(df):
     # df['System Identifier'] = list(map(sys_identify, df['Unit Type'], df['Unit Name']))
     df['System Identifier'] = list(map(sys_identify, df['Unit Type'], df['System number'],df['Generic system number']))
+    num_of_sys = df['System Identifier'].nunique()
+    
+    ### V0.03 new
+    #***********************************************************************************************************************#
+    # Initially clean the main dataframe
+    df = df.drop(cols_to_drop_init(num_of_sys) , axis=1, errors='ignore')   # Modified V0.03
+    #***********************************************************************************************************************#
 
     ## We will divide the main dataframe dynamically, so that we have a dataframe for each system
-    
     dict_of_systems = {}
-    for i in range(df['System Identifier'].nunique()):
+    for i in range(num_of_sys):
 #         print(i)
         dict_of_systems[f'df_{i}'] = df[df['System Identifier']== f'{i}']
         
-    directory_path = '.\outputs\Temporary'
+    directory_path = '.\Temporary'
     delete_files_in_directory(directory_path)
     
     print('.'*100)
@@ -265,17 +212,17 @@ def data_transform_and_split(df):
     # make a log file to record existing systems to be used in other scripts dynamically (V0.02)
     # Temporary record just for this run only (will be used in calculating COP and making plots)
     sys_tempo_log = df['System Identifier'].drop_duplicates().sort_values()
-    sys_tempo_log.to_csv(f'.\outputs\Temporary\\tempo_unique_sys.csv', index=False)
+    sys_tempo_log.to_csv(f'.\Temporary\\tempo_unique_sys.csv', index=False)
     
     # Permenant record will be used in calculating uncertainity for all systems 
     # if previously we entered 3 systems and today we enter 1 system only from them 
     # it should calculate uncertainity for 3 systems
     sys_tempo_log = pd.DataFrame(sys_tempo_log)
-    check_file_exist(sys_tempo_log, f'.\outputs\Clean transformed data before calculation\\unique_sys.csv', data_df=False)
-    sys_log = pd.read_csv(f'.\outputs\Clean transformed data before calculation\\unique_sys.csv')
+    check_file_exist(sys_tempo_log, f'.\Clean transformed data before calculation\\unique_sys.csv', data_df=False)
+    sys_log = pd.read_csv(f'.\Clean transformed data before calculation\\unique_sys.csv')
     sys_log.drop_duplicates(inplace=True)
     sys_log.sort_values(by='System Identifier', inplace=True)
-    sys_log.to_csv(f'.\outputs\Clean transformed data before calculation\\unique_sys.csv', index=False)
+    sys_log.to_csv(f'.\Clean transformed data before calculation\\unique_sys.csv', index=False)
 
 
     lst_of_systems_dfs = list(dict_of_systems.values())
@@ -283,8 +230,8 @@ def data_transform_and_split(df):
     
     for name,df in results_dict.items():
         df.sort_index(axis=1, inplace=True)
-        df.to_csv(f'.\outputs\Temporary\\sys_{name.split("_")[1]}_df.csv', index=False)
-        df = check_file_exist(df.sort_index(axis=1),f'.\outputs\Clean transformed data before calculation\\sys_{name.split("_")[1]}_df.csv')
+        df.to_csv(f'.\Temporary\\sys_{name.split("_")[1]}_df.csv', index=False)
+        df = check_file_exist(df.sort_index(axis=1),f'.\Clean transformed data before calculation\\sys_{name.split("_")[1]}_df.csv')
     
     print("Transformed data files was saved to temporary folder successfully")
     
@@ -330,9 +277,15 @@ def get_csv_file():
         print('*' * 120)
         # Recursively call the function to allow the user to try again.
         get_csv_file()
-        
-    
 
+### V0.03 added a library to track memory usage
+#***********************************************************************************************************************#
+import psutil
+process = psutil.Process()
 
-# data_transform_and_split(get_csv_file())
+data_transform_and_split(get_csv_file())
+
+print('Memory used in the script: ',round(((process.memory_info().rss)/1024 / 1024 / 1024),3) , 'gb') # in bytes 
+
+#***********************************************************************************************************************#
 
