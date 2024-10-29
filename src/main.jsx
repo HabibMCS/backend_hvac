@@ -12,6 +12,7 @@ import Login from './pages/Login/Login';
 import Profile from './pages/Profile/Profile';
 import Energy from './pages/Energy/Energy';
 import Dashboard from './pages/Dashboard/Dashboard';
+import  Charts  from './pages/Charts/Charts';
 
 
 
@@ -22,6 +23,7 @@ const router = createBrowserRouter(
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/energy" element={<Energy />} />
+      <Route path="/charts" element={<Charts />} />
     </Route>
   )
 );
