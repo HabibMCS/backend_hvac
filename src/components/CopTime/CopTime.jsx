@@ -30,7 +30,7 @@ const CopTime = () => {
 
     const fetchChartData = async () => {
         try {
-            const response = await axios.post("https://35.247.137.96:5000/download_csv", {
+            const response = await axios.post("http://35.247.137.96:5000/download_csv", {
                 token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjhiZThjNDYzMzU0N2NiZmZhMGZiZSIsImlhdCI6MTcyNzUyNjM0NCwiZXhwIjoxNzQzMDc4MzQ0fQ.RFfQzAVGXc8iLX80Iwhzixb45Xj2yVELBusH1a3MegI", // Replace with actual token
                 system_number: 1, // Example system number
             });
