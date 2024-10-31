@@ -11,7 +11,7 @@ const WellnessMatrix = () => {
   useEffect(() => {
     const fetchWellnessData = async () => {
       try {
-        const response = await fetch('http://35.247.137.96:5000/wellness_metrics');
+        const response = await fetch('http://localhost:5000/wellness_metrics');
         const data = await response.json();
         setWellnessData(data);
       } catch (error) {
