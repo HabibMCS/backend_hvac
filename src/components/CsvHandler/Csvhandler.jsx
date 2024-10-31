@@ -46,6 +46,10 @@ const CsvUploader = () => {
                 hour12: false,
               });
             }
+            // Adding mock data for new columns
+            row["Heat Gain (RT)"] = Math.random() * 100; // Mock random data for Heat Gain
+            row["Heat Rejected (RT)"] = Math.random() * 100; // Mock random data for Heat Rejected
+            row["Percent Heat Balance (%)"] = Math.random() * 100; // Mock random data for Percent Heat Balance
             return row;
           });
           setTableData(parsedData);
@@ -104,8 +108,7 @@ const CsvUploader = () => {
                   {Object.keys(tableData[0])
                     .filter((key) => key !== "Time Stamp") // Exclude "Time Stamp" from headers
                     .map((key, index) => {
-                      const description =
-                        getDescriptionWithoutColumnLetter(key);
+                      const description = getDescriptionWithoutColumnLetter(key);
                       return (
                         <th
                           key={key}
@@ -164,6 +167,54 @@ const CsvUploader = () => {
                       ))}
                   </tr>
                 ))}
+                <tr>
+                  <td align="center">Total</td>
+                  {Object.keys(tableData[0])
+                    .filter((key) => key !== "Time Stamp") // Exclude "Time Stamp" from total row
+                    .map((key) => {
+                      const total = tableData.reduce(
+                        (acc, row) => acc + parseFloat(row[key]) || 0,
+                        0
+                      );
+                      return (
+                        <td
+                          key={key}
+                          className=" border-dotted border-2 border-gray-300 px-4 py-2 text-center"
+                        >
+                          {total.toFixed(2)}
+                        </td>
+                      );
+                    })}
+                </tr>
+
+                <tr>
+                  <td className="border-2 border-gray-300 px-4 py-2 text-center" align="center"></td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-end" colSpan={tableData.length+2} align="right" >Total Data Count </td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-center"   >53(change value)</td>
+
+                </tr>
+
+                <tr>
+                  <td className="border-2 border-gray-300 px-4 py-2 text-center" align="center"></td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-end" colSpan={tableData.length+2} align="right" > Data Count &lt; +5% error </td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-center"   >53(change value)</td>
+
+                </tr>
+
+
+                <tr>
+                  <td className="border-2 border-gray-300 px-4 py-2 text-center" align="center"></td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-end" colSpan={tableData.length+2} align="right" >Data Count &gt; +5% error </td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-center"   >53(change value)</td>
+
+                </tr>
+
+                <tr>
+                  <td className="border-2 border-gray-300 px-4 py-2 text-center" align="center"></td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-end" colSpan={tableData.length+2} align="right" >Percentage of heat balance within ± 5% </td>
+                 <td className="border-2 border-gray-300 px-4 py-2 text-center"   >53(change value)</td>
+
+                </tr>
               </tbody>
             </table>
           </div>
