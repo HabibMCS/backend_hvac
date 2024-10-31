@@ -29,7 +29,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchSummaryData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/summary');
+                const response = await fetch('http://35.247.137.96:5000/summary');
                 const data = await response.json();
                 setSummaryData(data);
             } catch (error) {
