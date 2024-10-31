@@ -17,7 +17,7 @@ const AnalyticsTracker = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://35.247.137.96:5000/data?type=${activeData}`);
+        const response = await fetch(`http://35.247.137.96:5000/data?type=${activeData}`);
         const jsonData = await response.json();
         setData(jsonData);
       } catch (error) {

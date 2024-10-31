@@ -8,7 +8,7 @@ const StatsCard = () => {
   useEffect(() => {
     const fetchPercentage = async () => {
       try {
-        const response = await fetch('https://35.247.137.96:5000/percentage'); // Replace with your actual API endpoint
+        const response = await fetch('http://35.247.137.96:5000/percentage'); // Replace with your actual API endpoint
         const data = await response.json();
         setPercentage(data.percentage); // Assume the API returns { "percentage": 40 }
       } catch (error) {
