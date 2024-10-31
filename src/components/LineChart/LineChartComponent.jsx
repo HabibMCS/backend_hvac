@@ -20,9 +20,12 @@ const LineChartComponent = ({ data, xAxisKey }) => {
     return Math.ceil((maxValue + 1) / step) * step; // Round up to the next step
   };
 
+  // Define your colors
+  const colors = ['#4B0082', '#006400']; // Dark purple and dark green
+
   return (
     <div className="mt-4 space-y-8">
-      {yAxisKeys.map((key) => {
+      {yAxisKeys.map((key, index) => {
         // Calculate the maximum value for the current y-axis key
         const maxValue = Math.max(...data.map(item => item[key] || 0));
 
@@ -39,7 +42,7 @@ const LineChartComponent = ({ data, xAxisKey }) => {
                 <Line
                   type="monotone"
                   dataKey={key}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                  stroke={colors[index % colors.length]} // Alternate between dark purple and dark green
                   dot={false}
                 />
               </LineChart>
