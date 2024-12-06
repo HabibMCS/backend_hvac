@@ -2,3 +2,5 @@ outputs/
 __pycache__/
 .git/
 DVA
+Temps/
+creds.json

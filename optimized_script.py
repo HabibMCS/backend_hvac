@@ -12,6 +12,7 @@ from transform_data import data_transform_and_split
 from calculation_summary_uncertainity import calculate_uncertainity_summary
 from google.cloud import storage
 import time
+CREDENTIALS_PATH = "./creds.json"
 
 def get_date_segments(start_date, end_date, days_per_chunk=2):
     current = start_date
@@ -103,13 +104,14 @@ def process_and_upload_data(date, files, chunk_size=1000):
             os.remove(file)
     
     # Process the combined file in chunks
-    data_transform_and_split(pd.read_csv(outfile, chunksize=chunk_size), date_str)
+    df = pd.read_csv(outfile)
+    data_transform_and_split(df)
     subprocess.run([sys.executable, 'calculateCOP.py'], check=True)
     calculate_uncertainity_summary()
     
     # Upload to GCP
     bucket_name = 'traindata4m'
-    client = storage.Client()
+    client = setup_gcp_auth()
     bucket = client.bucket(bucket_name)
     
     for dir_path, gcp_prefix in [
@@ -129,8 +131,12 @@ def process_and_upload_data(date, files, chunk_size=1000):
         elif os.path.isfile(dir_path):
             bucket.blob(gcp_prefix).upload_from_filename(dir_path)
             os.remove(dir_path)
+def setup_gcp_auth():
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CREDENTIALS_PATH
+    return storage.Client()
 
 def main():
+#    storage_client = setup_gcp_auth()
     hvac = HVACSystem()
     end_date = datetime.now()
     start_date = end_date - timedelta(days=90)

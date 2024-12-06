@@ -35,10 +35,10 @@ refrigerant = 'R410A'
 def read_transformed_df():
     # Get the systems dataframes dynamically
     sys_df_dict = {}
-    temp_sys_log = pd.read_csv(f'.\outputs\Temporary\\tempo_unique_sys.csv')
+    temp_sys_log = pd.read_csv(f'./outputs/Temporary/tempo_unique_sys.csv')
         
     for i in temp_sys_log['System Identifier']:
-        sys_df_dict[f'sys_{i}_df'] = pd.read_csv(f'.\outputs\Temporary\\sys_{i}_df.csv')
+        sys_df_dict[f'sys_{i}_df'] = pd.read_csv(f'./outputs/Temporary/sys_{i}_df.csv')
         sys_df_dict[f'sys_{i}_df'] = sys_df_dict[f'sys_{i}_df'].drop_duplicates()
         # Filter the values where difference in compressor suction temp. and evaporation temp is low for better accuracy
         sys_df_dict[f'sys_{i}_df'] = sys_df_dict[f'sys_{i}_df'][(sys_df_dict[f'sys_{i}_df']['Comp. suction pipe temp.'] 
@@ -138,16 +138,16 @@ def correct_comp2_delta_t(x):
         return y
     
 def remove_unecessary_files():
-    temp_sys = pd.read_csv(f'.\outputs\Temporary\\tempo_unique_sys.csv')
-    tot_sys = pd.read_csv(f'.\outputs\Clean transformed data before calculation\\unique_sys.csv')
+    temp_sys = pd.read_csv(f'./outputs/Temporary/tempo_unique_sys.csv')
+    tot_sys = pd.read_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv')
 
     intersection = set(temp_sys['System Identifier']) & set(tot_sys['System Identifier'])
 
     missing_sys = tot_sys.drop(index=intersection)
 
     for i in missing_sys['System Identifier']:
-        if os.path.exists(f'.\outputs\Results with outliers\\results.{i}.csv'):
-              os.remove(f'.\outputs\Results with outliers\\results.{i}.csv')
+        if os.path.exists(f'./outputs/Results with outliers/results.{i}.csv'):
+              os.remove(f'./outputs/Results with outliers/results.{i}.csv')
     
 def remover_outliers(sys_df):
     for col in ['COP','cooling_load (KW)']:
@@ -371,10 +371,10 @@ def perform_calculations(sys_df,z):
     sys_df.dropna(axis=0, how='any', inplace=True)
     
     # Saving the final dataframe in csv
-    sys_df.to_csv(f'.\outputs\Temporary\\results.{z}.csv', index=False)
-    sys_df.to_csv(f'.\outputs\Results with outliers\\results.{z}.csv', index=False)
+    sys_df.to_csv(f'./outputs/Temporary/results.{z}.csv', index=False)
+    sys_df.to_csv(f'./outputs/Results with outliers/results.{z}.csv', index=False)
     sys_df[:] = remover_outliers(sys_df)
-    sys_df.to_csv(f'.\outputs\Results without outliers\\results.{z}.csv', index=False)  
+    sys_df.to_csv(f'./outputs/Results without outliers/results.{z}.csv', index=False)  
 
     print(f"Calculations of system {z} performed successfully")
     print("*"*120)

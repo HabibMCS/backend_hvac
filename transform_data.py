@@ -14,6 +14,7 @@ import time
 from datetime import datetime
 
 import os
+import os.path
 
 
 ### Constants
@@ -256,7 +257,7 @@ def data_transform_and_split(df):
 #         print(i)
         dict_of_systems[f'df_{i}'] = df[df['System Identifier']== f'{i}']
         
-    directory_path = '.\outputs\Temporary'
+    directory_path = './outputs/Temporary'
     delete_files_in_directory(directory_path)
     
     print('.'*100)
@@ -265,17 +266,17 @@ def data_transform_and_split(df):
     # make a log file to record existing systems to be used in other scripts dynamically (V0.02)
     # Temporary record just for this run only (will be used in calculating COP and making plots)
     sys_tempo_log = df['System Identifier'].drop_duplicates().sort_values()
-    sys_tempo_log.to_csv(f'.\outputs\Temporary\\tempo_unique_sys.csv', index=False)
+    sys_tempo_log.to_csv(f'./outputs/Temporary/tempo_unique_sys.csv', index=False)
     
     # Permenant record will be used in calculating uncertainity for all systems 
     # if previously we entered 3 systems and today we enter 1 system only from them 
     # it should calculate uncertainity for 3 systems
     sys_tempo_log = pd.DataFrame(sys_tempo_log)
-    check_file_exist(sys_tempo_log, f'.\outputs\Clean transformed data before calculation\\unique_sys.csv', data_df=False)
-    sys_log = pd.read_csv(f'.\outputs\Clean transformed data before calculation\\unique_sys.csv')
+    check_file_exist(sys_tempo_log, f'./outputs/Clean transformed data before calculation/unique_sys.csv', data_df=False)
+    sys_log = pd.read_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv')
     sys_log.drop_duplicates(inplace=True)
     sys_log.sort_values(by='System Identifier', inplace=True)
-    sys_log.to_csv(f'.\outputs\Clean transformed data before calculation\\unique_sys.csv', index=False)
+    sys_log.to_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv', index=False)
 
 
     lst_of_systems_dfs = list(dict_of_systems.values())
@@ -283,8 +284,8 @@ def data_transform_and_split(df):
     
     for name,df in results_dict.items():
         df.sort_index(axis=1, inplace=True)
-        df.to_csv(f'.\outputs\Temporary\\sys_{name.split("_")[1]}_df.csv', index=False)
-        df = check_file_exist(df.sort_index(axis=1),f'.\outputs\Clean transformed data before calculation\\sys_{name.split("_")[1]}_df.csv')
+        df.to_csv(f'./outputs/Temporary/sys_{name.split("_")[1]}_df.csv', index=False)
+        df = check_file_exist(df.sort_index(axis=1),f'./outputs/Clean transformed data before calculation/sys_{name.split("_")[1]}_df.csv')
     
     print("Transformed data files was saved to temporary folder successfully")
     
@@ -311,14 +312,14 @@ def get_csv_file():
     #
     # If the file is in a different directory, provide the relative or absolute path.
     # Example of a relative path: file_name = 'data/raw_data.csv' (assuming 'data' is a subdirectory)
-    # Example of a relative path: file_name = '..\raw_data.csv' (assuming 'raw_data.csv' exist just in the parent directory)
+    # Example of a relative path: file_name = '../raw_data.csv' (assuming 'raw_data.csv' exist just in the parent directory)
     # Example of an absolute path: file_name = 'C:/Users/Username/Documents/raw_data.csv'
 
     file_name = input('Please enter raw data csv file name or file path (e.g., raw_data.csv): ')
 
     try:
         # Attempt to read the CSV file using the provided file name or path.
-        df = pd.read_csv(f".\Raw Data\\{file_name}", low_memory=False)
+        df = pd.read_csv(f"./Raw Data/{file_name}", low_memory=False)
         print('File was read successfully!')
         print("*"*120)
         df = filter_dataframe(df)
