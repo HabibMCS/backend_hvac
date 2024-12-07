@@ -114,6 +114,7 @@ def process_and_upload_data(date, files, chunk_size=1000):
     client = setup_gcp_auth()
     bucket = client.bucket(bucket_name)
     
+    
     for dir_path, gcp_prefix in [
         (outfile, f"COPData/sitedata/all_sys_{date_str}.csv"),
         (f"./outputs/Uncertainitysummary/Allsystemsresultssummary.csv", 
@@ -130,6 +131,7 @@ def process_and_upload_data(date, files, chunk_size=1000):
                     os.remove(local_path)
         elif os.path.isfile(dir_path):
             bucket.blob(gcp_prefix).upload_from_filename(dir_path)
+            print("uploaded")
             os.remove(dir_path)
 def setup_gcp_auth():
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CREDENTIALS_PATH
