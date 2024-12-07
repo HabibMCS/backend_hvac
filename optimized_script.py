@@ -12,7 +12,35 @@ from transform_data import data_transform_and_split
 from calculation_summary_uncertainity import calculate_uncertainity_summary
 from google.cloud import storage
 import time
+import json
 CREDENTIALS_PATH = "./creds.json"
+
+
+class ProgressTracker:
+    def __init__(self, progress_file='progress.json'):
+        self.progress_file = progress_file
+        self.processed_dates = self._load_progress()
+
+    def _load_progress(self):
+        if os.path.exists(self.progress_file):
+            try:
+                with open(self.progress_file, 'r') as f:
+                    return json.load(f)
+            except:
+                return []
+        return []
+
+    def save_progress(self):
+        with open(self.progress_file, 'w') as f:
+            json.dump(self.processed_dates, f)
+
+    def mark_completed(self, date_str):
+        if date_str not in self.processed_dates:
+            self.processed_dates.append(date_str)
+            self.save_progress()
+
+    def is_completed(self, date_str):
+        return date_str in self.processed_dates
 
 def get_date_segments(start_date, end_date, days_per_chunk=2):
     current = start_date
@@ -136,23 +164,38 @@ def process_and_upload_data(date, files, chunk_size=1000):
 def setup_gcp_auth():
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CREDENTIALS_PATH
     return storage.Client()
+def get_pending_segments(start_date, end_date, progress_tracker, days_per_chunk=2):
+    """Generate segments only for unprocessed dates"""
+    current = start_date
+    while current < end_date:
+        segment_end = min(current + timedelta(days=days_per_chunk), end_date)
+        date_str = segment_end.strftime("%Y-%m-%d")
+        
+        if not progress_tracker.is_completed(date_str):
+            yield current, segment_end
+        current = segment_end
 
 def main():
-#    storage_client = setup_gcp_auth()
+    progress_tracker = ProgressTracker()
     hvac = HVACSystem()
     end_date = datetime.now()
     start_date = end_date - timedelta(days=90)
     
     # Process historical data in segments
-    for segment_start, segment_end in get_date_segments(start_date, end_date):
+    for segment_start, segment_end in get_pending_segments(start_date, end_date, progress_tracker):
         print(f"Processing segment: {segment_start} to {segment_end}")
-        files = process_segment(
-            segment_start, segment_end,
-            hvac, env.token, env.system_uri, env.unit_uri, env.service_uri
-        )
-        if files:
-            process_and_upload_data(segment_end, files)
-        gc.collect()
+        try:
+            files = process_segment(
+                segment_start, segment_end,
+                hvac, env.token, env.system_uri, env.unit_uri, env.service_uri
+            )
+            if files:
+                process_and_upload_data(segment_end, files)
+                progress_tracker.mark_completed(segment_end.strftime("%Y-%m-%d"))
+            gc.collect()
+        except Exception as e:
+            print(f"Error processing segment {segment_start} to {segment_end}: {e}")
+            continue
     
     # Switch to daily processing
     while True:
@@ -161,13 +204,19 @@ def main():
         time.sleep((next_run - now).total_seconds())
         
         yesterday = now - timedelta(days=1)
-        files = process_segment(
-            yesterday, now,
-            hvac, env.token, env.system_uri, env.unit_uri, env.service_uri
-        )
-        if files:
-            process_and_upload_data(yesterday, files)
-        gc.collect()
-
+        date_str = yesterday.strftime("%Y-%m-%d")
+        
+        if not progress_tracker.is_completed(date_str):
+            try:
+                files = process_segment(
+                    yesterday, now,
+                    hvac, env.token, env.system_uri, env.unit_uri, env.service_uri
+                )
+                if files:
+                    process_and_upload_data(yesterday, files)
+                    progress_tracker.mark_completed(date_str)
+                gc.collect()
+            except Exception as e:
+                print(f"Error processing daily data for {date_str}: {e}")
 if __name__ == "__main__":
     main()
