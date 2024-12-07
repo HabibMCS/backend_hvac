@@ -9,3 +9,7 @@ pytz==2023.3
 Requests==2.32.3
 seaborn==0.13.2
 schedule==1.2.2
+google-cloud-storage
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
