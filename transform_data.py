@@ -228,7 +228,7 @@ def clean_combined_sys_df(df,k):
     print(f'After removing Null columns we have {df.shape[1]} columns.')
     # Will create a list of columns to drop based on analysis
     lst_to_drop = cols_to_drop(k)
-    df = df.drop(lst_to_drop , axis=1)
+    df = df.drop(lst_to_drop , axis=1, errors = 'ignore')
     
     print(f'Final Dataframe after dropping all unnecessary columns, we have {df.shape[1]} columns.')
     print('*'*100)
