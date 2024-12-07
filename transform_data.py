@@ -272,11 +272,11 @@ def data_transform_and_split(df):
     # if previously we entered 3 systems and today we enter 1 system only from them 
     # it should calculate uncertainity for 3 systems
     sys_tempo_log = pd.DataFrame(sys_tempo_log)
-    check_file_exist(sys_tempo_log, f'./outputs/Clean transformed data before calculation/unique_sys.csv', data_df=False)
-    sys_log = pd.read_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv')
+    check_file_exist(sys_tempo_log, f'./outputs/Cleantransformeddatabeforecalculation/unique_sys.csv', data_df=False)
+    sys_log = pd.read_csv(f'./outputs/Cleantransformeddatabeforecalculation/unique_sys.csv')
     sys_log.drop_duplicates(inplace=True)
     sys_log.sort_values(by='System Identifier', inplace=True)
-    sys_log.to_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv', index=False)
+    sys_log.to_csv(f'./outputs/Cleantransformeddatabeforecalculation/unique_sys.csv', index=False)
 
 
     lst_of_systems_dfs = list(dict_of_systems.values())
@@ -285,7 +285,7 @@ def data_transform_and_split(df):
     for name,df in results_dict.items():
         df.sort_index(axis=1, inplace=True)
         df.to_csv(f'./outputs/Temporary/sys_{name.split("_")[1]}_df.csv', index=False)
-        df = check_file_exist(df.sort_index(axis=1),f'./outputs/Clean transformed data before calculation/sys_{name.split("_")[1]}_df.csv')
+        df = check_file_exist(df.sort_index(axis=1),f'./outputs/Cleantransformeddatabeforecalculation/sys_{name.split("_")[1]}_df.csv')
     
     print("Transformed data files was saved to temporary folder successfully")
     

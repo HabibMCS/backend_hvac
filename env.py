@@ -1,8 +1,8 @@
-token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjhiZThjNDYzMzU0N2NiZmZhMGZiZSIsImlhdCI6MTcxNzMyNjAwMSwiZXhwIjoxNzMyODc4MDAxfQ.EHaFISn__FMPaf1WUeTwUO5qvpgWREpuQj0kGbaefGw'
-unit_uri = "https:/api.coolremote.net/api/v2/units"
-system_uri = "https:/api.coolremote.net/api/v2/service-params/systems/"
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjhiZThjNDYzMzU0N2NiZmZhMGZiZSIsImlhdCI6MTczMzUwMjIzMSwiZXhwIjoxNzQ5MDU0MjMxfQ.Lx53TekTh6m1NWE3AjbZVUKjvgnVrqNxVK-DmFLi5cU'
+unit_uri = "https://api.coolremote.net/api/v2/units"
+system_uri = "https://api.coolremote.net/api/v2/service-params/systems/"
 
-service_uri = "https:/api.coolremote.net/api/v2/service-params"
+service_uri = "https://api.coolremote.net/api/v2/service-params"
 
 google_creds = ''
 base_aggregation = {

@@ -27,10 +27,10 @@ def calculate_uncertainity_summary():
     uncertainity_factor = 10# get_uncertainity_factor()
     total_summary = pd.DataFrame()
     
-    sys_log = pd.read_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv')
+    sys_log = pd.read_csv(f'./outputs/Cleantransformeddatabeforecalculation/unique_sys.csv')
     
     for i in sys_log['System Identifier']:
-        new_df = pd.read_csv(f'./outputs/Results without outliers/results.{i}.csv')
+        new_df = pd.read_csv(f'./outputs/Resultswithoutoutliers/results.{i}.csv')
 
         new_df['(e) Condenser outlet enthalpy (kj/kg)'] = new_df['h_evap_in'] / 1000
         new_df['(d) Condenser inlet enthalpy (kj/kg)'] = new_df['h_comp1_dis'] / 1000
@@ -69,7 +69,7 @@ def calculate_uncertainity_summary():
             else:
                 sample_data = new_df
 
-            sample_data.to_csv(f"./outputs/Uncertainity summary/sample_sys_{i}.csv", index=False)
+            sample_data.to_csv(f"./outputs/Uncertainitysummary/sample_sys_{i}.csv", index=False)
                 
         else:
             print("This system is not operating during the filtered or specified time range")
@@ -100,7 +100,7 @@ def calculate_uncertainity_summary():
         if i == 3:
             print('*'*34, 'All results are saved in corresponding CSVs successfully!','*'*34)
             
-    total_summary.to_csv(f"./outputs/Uncertainity summary/All systems results summary.csv", index=False)
+    total_summary.to_csv(f"./outputs/Uncertainitysummary/Allsystemsresultssummary.csv", index=False)
         
 
 # calculate_uncertainity_summary()

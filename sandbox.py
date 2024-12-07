@@ -123,13 +123,13 @@ def download_and_process_data(date):
 
 def prefix_files_with_date(date, outfile):
     """Prefixes the individual system files with the specified date and uploads them to GCP."""
-    transformed_dir = './outputs/Clean transformed data before calculation'
-    results_dir = './outputs/Results with outliers'
+    transformed_dir = './outputs/Cleantransformeddatabeforecalculation'
+    results_dir = './outputs/Resultswithoutliers'
     
     bucket_name = 'traindata4m'  
     new_filename = f"all_sys_{date}.csv"  
 
-    uncern_file = f"./outputs/Uncertainity summary/All systems results summary.csv"
+    uncern_file = f"./outputs/Uncertainitysummary/Allsystemsresultssummary.csv"
     upload_to_gcp(bucket_name, outfile, f"COPData/sitedata/{new_filename}")
     upload_to_gcp(bucket_name, uncern_file, f"COPData/uncertainity_summary/file_{date}.csv")
 

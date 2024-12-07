@@ -116,10 +116,10 @@ def process_and_upload_data(date, files, chunk_size=1000):
     
     for dir_path, gcp_prefix in [
         (outfile, f"COPData/sitedata/all_sys_{date_str}.csv"),
-        (f"./outputs/Uncertainity summary/All systems results summary.csv", 
+        (f"./outputs/Uncertainitysummary/Allsystemsresultssummary.csv", 
          f"COPData/uncertainity_summary/file_{date_str}.csv"),
-        ('./outputs/Clean transformed data before calculation', 'COPData/transformed'),
-        ('./outputs/Results with outliers', 'COPData/Results')
+        ('./outputs/Cleantransformeddatabeforecalculation', 'COPData/transformed'),
+        ('./outputs/Resultswithoutliers', 'COPData/Results')
     ]:
         if isinstance(dir_path, str) and os.path.isdir(dir_path):
             for filename in os.listdir(dir_path):

@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 hvac = HVACSystem()
 df_reduced = pd.read_csv('./data/reduced.csv')
-df_all_sys_res = pd.read_csv('./data/All systems results summary.csv')
+df_all_sys_res = pd.read_csv('./data/Allsystemsresultssummary.csv')
 
 # Function to download system data (adapted from your code)
 def download_system_data(system_id, hvac, token, system_uri, service_uri, units_json, parameter_mapping, segments, output_dir):

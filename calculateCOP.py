@@ -139,15 +139,15 @@ def correct_comp2_delta_t(x):
     
 def remove_unecessary_files():
     temp_sys = pd.read_csv(f'./outputs/Temporary/tempo_unique_sys.csv')
-    tot_sys = pd.read_csv(f'./outputs/Clean transformed data before calculation/unique_sys.csv')
+    tot_sys = pd.read_csv(f'./outputs/Cleantransformeddatabeforecalculation/unique_sys.csv')
 
     intersection = set(temp_sys['System Identifier']) & set(tot_sys['System Identifier'])
 
     missing_sys = tot_sys.drop(index=intersection)
 
     for i in missing_sys['System Identifier']:
-        if os.path.exists(f'./outputs/Results with outliers/results.{i}.csv'):
-              os.remove(f'./outputs/Results with outliers/results.{i}.csv')
+        if os.path.exists(f'./outputs/Resultswithoutliers/results.{i}.csv'):
+              os.remove(f'./outputs/Resultswithoutliers/results.{i}.csv')
     
 def remover_outliers(sys_df):
     for col in ['COP','cooling_load (KW)']:
@@ -372,9 +372,9 @@ def perform_calculations(sys_df,z):
     
     # Saving the final dataframe in csv
     sys_df.to_csv(f'./outputs/Temporary/results.{z}.csv', index=False)
-    sys_df.to_csv(f'./outputs/Results with outliers/results.{z}.csv', index=False)
+    sys_df.to_csv(f'./outputs/Resultswithoutliers/results.{z}.csv', index=False)
     sys_df[:] = remover_outliers(sys_df)
-    sys_df.to_csv(f'./outputs/Results without outliers/results.{z}.csv', index=False)  
+    sys_df.to_csv(f'./outputs/Resultswithoutoutliers/results.{z}.csv', index=False)  
 
     print(f"Calculations of system {z} performed successfully")
     print("*"*120)
